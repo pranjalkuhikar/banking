@@ -6,22 +6,22 @@ import jwt from "jsonwebtoken";
 export const register = async (req, res) => {
   try {
     const { fullName = {}, email, password } = req.body;
-    const firstName = fullName?.firstName?.trim();
-    const lastName = fullName?.lastName?.trim();
-    const normalizedEmail = email?.toLowerCase().trim();
+    const { firstName, lastName } = fullName;
 
-    if (!firstName || !lastName || !normalizedEmail || !password) {
+    if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: "All Data is Required" });
     }
 
-    const isAlreadyExists = await User.findOne({ email: normalizedEmail });
+    const isAlreadyExists = await User.findOne({
+      email: email.toLowerCase().trim(),
+    });
     if (isAlreadyExists) {
       return res.status(409).json({ message: "Email already exists" });
     }
 
     const user = await User.create({
       fullName: { firstName, lastName },
-      email: normalizedEmail,
+      email,
       password,
       role: "user",
       isVerifyEmail: false,
@@ -38,14 +38,12 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const normalizedEmail = email?.toLowerCase().trim();
-    if (!normalizedEmail || !password) {
+
+    if (!email || !password) {
       return res.status(400).json({ message: "All Data is Required" });
     }
 
-    const user = await User.findOne({ email: normalizedEmail }).select(
-      "+password",
-    );
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
