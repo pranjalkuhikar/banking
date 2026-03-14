@@ -8,6 +8,6 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 router.post("/createAccount", authMiddleware, createAccount);
-router.get("/balance", authMiddleware, getBalance);
+router.get("/getBalance", authMiddleware, getBalance);
 
 export default router;
