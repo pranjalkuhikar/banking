@@ -24,7 +24,10 @@ export const registerValidator = [
     .notEmpty()
     .withMessage("First name is required"),
 
-  body("fullName.lastName").optional().trim(),
+  body("fullName.lastName")
+    .trim()
+    .notEmpty()
+    .withMessage("Last name is required"),
 
   body("email")
     .trim()
@@ -58,8 +61,8 @@ export const loginValidator = [
     .trim()
     .notEmpty()
     .withMessage("Password is required")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long"),
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
 
   handleValidationErrors,
 ];
