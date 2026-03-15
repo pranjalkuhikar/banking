@@ -20,10 +20,7 @@ import {
 const Sidebar = ({ isOpen, onClose }) => {
   const [logout, { isLoading }] = useLogoutMutation();
   const { data: profile } = useProfileQuery();
-  console.log(profile?.user);
-
   const navigate = useNavigate();
-
   const { theme, setTheme } = useTheme();
 
   const handleLogout = async () => {
@@ -101,7 +98,10 @@ const Sidebar = ({ isOpen, onClose }) => {
               <p className="text-sm font-semibold text-gray-900 dark:text-white">
                 Welcome back,
                 <br />
-                {profile?.user?.firstName || "Guest"}!
+                {profile?.user?.fullName?.firstName}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                {profile?.user?.email || "guest@example.com"}
               </p>
             </div>
           </div>
