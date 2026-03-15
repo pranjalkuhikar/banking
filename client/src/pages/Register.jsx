@@ -11,16 +11,19 @@ const Register = () => {
   const navigate = useNavigate();
   const [register, { isLoading, isError }] = useRegisterMutation();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (firstName && lastName && email && password) {
-      register({
-        firstName,
-        lastName,
-        email,
-        password,
-      });
-      navigate("/dashboard");
+      try {
+        await register({
+          fullName: { firstName, lastName },
+          email,
+          password,
+        }).unwrap();
+        navigate("/login");
+      } catch (err) {
+        console.error("Registration failed:", err);
+      }
     }
   };
 
