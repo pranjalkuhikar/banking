@@ -8,24 +8,15 @@ import Transfer from "./pages/Transfer";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const DashboardLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+import Accounts from "./pages/Accounts";
+import ProfilePage from "./pages/ProfilePage";
 
+const ProtectedLayout = ({ children }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-[#0c0f1a] text-gray-900 dark:text-white overflow-hidden w-full relative transition-colors duration-300">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <Dashboard onMenuClick={() => setIsSidebarOpen(true)} />
-    </div>
-  );
-};
-
-const TransferLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-
-  return (
-    <div className="flex h-screen bg-gray-50 dark:bg-[#0c0f1a] text-gray-900 dark:text-white overflow-hidden w-full relative transition-colors duration-300">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <Transfer onMenuClick={() => setIsSidebarOpen(true)} />
+      {React.cloneElement(children, { onMenuClick: () => setIsSidebarOpen(true) })}
     </div>
   );
 };
@@ -38,13 +29,14 @@ const App = () => {
         <Route path="/register" element={<Register />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardLayout />} />
-          <Route path="/transfer" element={<TransferLayout />} />
+          <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
+          <Route path="/transfer" element={<ProtectedLayout><Transfer /></ProtectedLayout>} />
+          <Route path="/accounts" element={<ProtectedLayout><Accounts /></ProtectedLayout>} />
+          <Route path="/profile" element={<ProtectedLayout><ProfilePage /></ProtectedLayout>} />
         </Route>
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<ProtectedLayout><NotFound /></ProtectedLayout>} />
       </Routes>
     </BrowserRouter>
   );

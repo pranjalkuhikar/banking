@@ -35,14 +35,9 @@ const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-    { icon: ArrowRightLeft, label: "Transfer", path: "/transfer" },
-    { icon: Compass, label: "Neuro AI", path: "/ai" },
     { icon: CreditCard, label: "Accounts", path: "/accounts" },
-    { icon: ArrowRightLeft, label: "Transactions", path: "/transactions" },
-    { icon: FileText, label: "Reports", path: "/reports" },
-    { icon: TrendingUp, label: "Investments", path: "/investments" },
-    { icon: Landmark, label: "Loans", path: "/loans" },
-    { icon: Calculator, label: "Taxes", path: "/taxes" },
+    { icon: ArrowRightLeft, label: "Transfer", path: "/transfer" },
+    { icon: FileText, label: "Profile", path: "/profile" },
   ];
 
   return (
