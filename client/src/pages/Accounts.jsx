@@ -150,9 +150,9 @@ const Accounts = ({ onMenuClick }) => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Refined "Onyx Reserve" Account Card with Full Info */}
+          {/* Refined "Onyx Reserve" Account Card with Responsive Design */}
           <div className="lg:col-span-2 group">
-            <div className="relative p-12 rounded-[56px] overflow-hidden transition-all duration-700 transform hover:scale-[1.01] shadow-2xl shadow-blue-900/10">
+            <div className="relative p-6 sm:p-10 lg:p-14 rounded-[32px] sm:rounded-[48px] lg:rounded-[56px] overflow-hidden transition-all duration-700 transform hover:scale-[1.01] shadow-2xl shadow-blue-900/10 min-h-[320px] sm:min-h-[380px] lg:min-h-[420px]">
               {/* Deep Onyx Base */}
               <div className="absolute inset-0 bg-[#05070a]"></div>
 
@@ -163,54 +163,71 @@ const Accounts = ({ onMenuClick }) => {
               {/* Structural Accents */}
               <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-              <div className="absolute inset-0 rounded-[56px] border border-white/10 pointer-events-none"></div>
+              <div className="absolute inset-0 rounded-[32px] sm:rounded-[48px] lg:rounded-[56px] border border-white/10 pointer-events-none"></div>
 
               {/* Card Content */}
-              <div className="relative z-10 flex flex-col h-full min-h-[360px]">
-                <div className="flex justify-between items-start mb-16">
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-3xl bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center shadow-inner">
-                      <Sparkles className="w-8 h-8 text-blue-400" />
+              <div className="relative z-10 flex flex-col h-full justify-between gap-8 sm:gap-12">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center shadow-inner">
+                      <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.5em] mb-1.5">
+                      <p className="text-[8px] sm:text-[10px] text-white/40 font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-1">
                         NeuroBank
                       </p>
-                      <h4 className="text-2xl font-black text-white tracking-tight">
+                      <h4 className="text-lg sm:text-2xl font-black text-white tracking-tight">
                         Onyx Reserve
                       </h4>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
-                    <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[9px] font-black text-blue-400 uppercase tracking-widest mb-3">
+                    <div className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[7px] sm:text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2 sm:mb-3">
                       Priority Elite
                     </div>
-                    <span className="text-[10px] font-mono text-white/20 tracking-tighter uppercase whitespace-nowrap">
-                      SIGNATURE ID: {account._id?.slice(-8).toUpperCase()}
+                    <span className="text-[8px] sm:text-[10px] font-mono text-white/20 tracking-tighter uppercase whitespace-nowrap">
+                      ID: {account._id?.slice(-8).toUpperCase()}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-auto flex flex-col md:flex-row md:items-end justify-between gap-12">
-                  <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 md:gap-12">
+                  <div className="space-y-6 sm:space-y-8">
                     <div>
-                      <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.4em] mb-2">
+                      <p className="text-[8px] sm:text-[10px] text-white/30 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-1.5 sm:mb-2">
                         Cardholder
                       </p>
-                      <p className="text-xl font-bold text-white tracking-wide uppercase">
+                      <p className="text-base sm:text-xl font-bold text-white tracking-wide uppercase">
                         {profile?.user?.fullName?.firstName}{" "}
                         {profile?.user?.fullName?.lastName}
                       </p>
                     </div>
+
+                    <div className="space-y-1 sm:space-y-2">
+                      <p className="text-[8px] sm:text-[10px] text-white/30 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em]">
+                        Available Liquidity
+                      </p>
+                      <div className="flex items-baseline gap-2 sm:gap-4">
+                        <span className="text-lg sm:text-2xl text-white/20 font-black tracking-tighter">
+                          {account.currency}
+                        </span>
+                        <span className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-white drop-shadow-[0_10px_40px_rgba(59,130,246,0.3)]">
+                          {account.balance.toLocaleString("en-IN")}
+                          <span className="text-xl sm:text-3xl text-white/40 font-bold">
+                            .00
+                          </span>
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="relative">
+                  <div className="relative group/id max-w-full overflow-hidden">
                     <div className="absolute inset-0 bg-blue-500/20 blur-2xl -m-4 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[32px] p-8 py-6 flex flex-col items-end group-hover:border-white/30 transition-all">
-                      <p className="text-[9px] text-white/30 uppercase font-black tracking-widest mb-2">
+                    <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl sm:rounded-[32px] p-6 sm:p-8 py-5 sm:py-6 flex flex-col items-start md:items-end group-hover:border-white/30 transition-all">
+                      <p className="text-[8px] sm:text-[9px] text-white/30 uppercase font-black tracking-widest mb-1.5 sm:mb-2">
                         Vault Identifier
                       </p>
-                      <p className="text-2xl font-mono font-black text-white tracking-[0.2em] whitespace-nowrap">
+                      <p className="text-lg sm:text-2xl font-mono font-black text-white tracking-[0.15em] sm:tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis w-full">
                         {account.accountNumber.match(/.{1,4}/g)?.join(" ") ||
                           account.accountNumber}
                       </p>
