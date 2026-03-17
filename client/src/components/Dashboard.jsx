@@ -3,15 +3,66 @@ import { useGetHistoryQuery } from "../services/transition.api";
 import { Calendar, LayoutGrid, Plus, Menu } from "lucide-react";
 
 const Dashboard = ({ onMenuClick }) => {
-  const { data: accountData, isLoading: isAccountLoading } = useGetAccountQuery();
+  const { data: accountData, isLoading: isAccountLoading } =
+    useGetAccountQuery();
   const accountId = accountData?.account?._id;
   const balance = accountData?.account?.balance || 0;
 
-  const { data: historyData, isLoading: isHistoryLoading } = useGetHistoryQuery(accountId, {
-    skip: !accountId
-  });
+  const { data: historyData, isLoading: isHistoryLoading } = useGetHistoryQuery(
+    accountId,
+    {
+      skip: !accountId,
+    },
+  );
 
   const transactions = historyData?.transitions || [];
+
+  // Helper to compare accounts (handles populated objects or IDs)
+  const isUserRecipient = (tx) => {
+    const toId = tx.toAccount?._id || tx.toAccount;
+    return toId === accountId;
+  };
+
+  const isUserSender = (tx) => {
+    const fromId = tx.fromAccount?._id || tx.fromAccount;
+    return fromId === accountId;
+  };
+
+  // Calculate earnings and spending
+  const totalEarnings = transactions
+    .filter((tx) => isUserRecipient(tx) && tx.status === "completed")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const totalSpending = transactions
+    .filter((tx) => isUserSender(tx) && tx.status === "completed")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  // Generate dynamic chart path
+  const generateChartPath = () => {
+    if (transactions.length === 0)
+      return "M0,35 Q10,25 20,30 T40,20 T60,25 T80,10 T100,5";
+
+    // Sort transactions by date (if not already)
+    const sortedTx = [...transactions].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    );
+
+    // Simple normalization: map timestamps to 0-100 and amounts to 0-35
+    const minTime = new Date(sortedTx[0].createdAt).getTime();
+    const maxTime = new Date(sortedTx[sortedTx.length - 1].createdAt).getTime();
+    const timeRange = maxTime - minTime || 1;
+
+    const maxAmount = Math.max(...sortedTx.map((tx) => tx.amount)) || 1;
+
+    let path = `M0,${35 - (sortedTx[0].amount / maxAmount) * 30}`;
+    sortedTx.forEach((tx) => {
+      const x =
+        ((new Date(tx.createdAt).getTime() - minTime) / timeRange) * 100;
+      const y = 35 - (tx.amount / maxAmount) * 30;
+      path += ` L${x},${y}`;
+    });
+    return path;
+  };
 
   if (isAccountLoading || isHistoryLoading) {
     return (
@@ -23,7 +74,7 @@ const Dashboard = ({ onMenuClick }) => {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 dark:bg-[#0c0f1a] transition-colors duration-300">
-      {/* Header */}
+      {/* Header omitted */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <button
@@ -51,11 +102,9 @@ const Dashboard = ({ onMenuClick }) => {
         </div>
       </div>
 
-      {/* Grid Layout taking cues from the image */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
-        {/* Row 1 */}
-        <div className="lg:col-span-4 h-80 rounded-3xl glass-card border flex flex-col justify-between relative overflow-hidden group">
-          {/* AI Insights placeholder */}
+        {/* AI Insights placeholder */}
+        <div className="lg:col-span-4 h-80 rounded-3xl bg-white dark:bg-[#151828] border border-gray-200 dark:border-[#232738] flex flex-col justify-between relative overflow-hidden group shadow-sm">
           <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 dark:from-indigo-900/50 to-blue-500/5 dark:to-blue-900/20"></div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-3xl -mr-20 -mt-20"></div>
           <div className="relative z-10 p-6 flex flex-col h-full justify-between">
@@ -74,7 +123,7 @@ const Dashboard = ({ onMenuClick }) => {
               <h3 className="text-xl font-semibold leading-snug text-gray-900 dark:text-white max-w-[90%]">
                 {"No insights available."}
               </h3>
-              <button className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-white dark:bg-[#1e2235] flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#2a2f4c] transition-colors border border-gray-200 dark:border-white/5 shadow-sm">
+              <button className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-white dark:bg-[#1e2235] flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#2a2f4c] transition-colors border border-gray-200 dark:border-[#232738] shadow-sm">
                 <span className="text-gray-900 dark:text-white -rotate-45 text-lg">
                   →
                 </span>
@@ -83,8 +132,7 @@ const Dashboard = ({ onMenuClick }) => {
           </div>
         </div>
 
-        <div className="lg:col-span-4 h-80 rounded-3xl glass-card border p-6 relative">
-          {/* Balance Overview placeholder */}
+        <div className="lg:col-span-4 h-80 rounded-3xl bg-white dark:bg-[#151828] border border-gray-200 dark:border-[#232738] p-6 relative shadow-sm">
           <h3 className="text-gray-500 dark:text-gray-400 font-medium mb-2">
             Balance Overview
           </h3>
@@ -113,14 +161,13 @@ const Dashboard = ({ onMenuClick }) => {
             </div>
           </div>
           <div className="absolute bottom-10 left-6 right-6 h-24 border-b border-dashed border-gray-300 dark:border-white/10">
-            {/* Chart line placeholder */}
             <svg
               className="w-full h-full"
               viewBox="0 0 100 40"
               preserveAspectRatio="none"
             >
               <path
-                d="M0,35 Q10,25 20,30 T40,20 T60,25 T80,10 T100,5"
+                d={generateChartPath()}
                 fill="none"
                 stroke="#3b82f6"
                 strokeWidth="2"
@@ -149,17 +196,19 @@ const Dashboard = ({ onMenuClick }) => {
           </button>
         </div>
 
-        <div className="lg:col-span-4 md:col-span-2 h-80 rounded-3xl glass-card border p-6 relative">
-          {/* Earnings placeholder */}
+        <div className="lg:col-span-4 md:col-span-2 h-80 rounded-3xl bg-white dark:bg-[#151828] border border-gray-200 dark:border-[#232738] p-6 relative shadow-sm">
           <h3 className="text-gray-500 dark:text-gray-400 font-medium mb-2">
             Earnings
           </h3>
           <div className="flex flex-wrap items-end gap-3 mb-8">
             <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-              {"No earnings available."}
+              {totalEarnings.toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
             </span>
             <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center bg-emerald-100 dark:bg-emerald-400/10 px-2 py-0.5 rounded text-[10px] sm:text-xs mb-1">
-              ↑ {"No percentage change available."}
+              ↑ 0%
               <span className="text-gray-500 dark:text-gray-400 ml-1">
                 From last month
               </span>
@@ -167,17 +216,26 @@ const Dashboard = ({ onMenuClick }) => {
           </div>
           <div className="flex justify-center mt-6">
             <div className="relative w-48 h-24 overflow-hidden">
-              {/* Doughnut arc placeholder */}
-              <div className="absolute inset-0 box-border border-16 border-gray-100 dark:border-[#1e2235] rounded-t-[100px] border-b-0"></div>
-              <div className="absolute top-0 left-0 w-[58%] h-full overflow-hidden origin-bottom-right">
-                <div className="absolute top-0 -right-[42%] w-[100/58*100%] h-full box-border border-16 border-blue-500 rounded-t-[100px] border-b-0 transform rotate-0"></div>
+              <div className="absolute inset-0 box-border border-[16px] border-gray-100 dark:border-[#1e2235] rounded-t-[100px] border-b-0"></div>
+              <div className="absolute top-0 left-0 w-[100%] h-full overflow-hidden origin-bottom-right">
+                <div
+                  className="absolute top-0 left-0 w-full h-full box-border border-[16px] border-blue-500 rounded-t-[100px] border-b-0"
+                  style={{
+                    transform: `rotate(${(totalEarnings / (totalEarnings + totalSpending || 1)) * 180}deg)`,
+                    transformOrigin: "bottom center",
+                  }}
+                ></div>
               </div>
               <div className="absolute bottom-2 left-0 right-0 text-center">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Percentage
+                  Growth
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {"No progress percentage available."}
+                  {(
+                    (totalEarnings / (totalEarnings + totalSpending || 1)) *
+                    100
+                  ).toFixed(0)}
+                  %
                 </p>
               </div>
             </div>
@@ -196,8 +254,7 @@ const Dashboard = ({ onMenuClick }) => {
           </button>
         </div>
 
-        {/* Row 2 */}
-        <div className="md:col-span-2 lg:col-span-8 bg-white dark:bg-[#0c0f1a] rounded-3xl border border-gray-200 dark:border-white/5 p-6 relative shadow-sm dark:shadow-none">
+        <div className="md:col-span-2 lg:col-span-8 bg-white dark:bg-[#151828] rounded-3xl border border-gray-200 dark:border-[#232738] p-6 relative shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Transactions
@@ -214,57 +271,62 @@ const Dashboard = ({ onMenuClick }) => {
 
           <div className="space-y-4 overflow-x-auto pb-4">
             <div className="min-w-[600px]">
-              {/* {dashboardData?.transactions?.map((tx) => (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between group mb-4"
-                >
-                  <div className="flex items-center gap-4 w-1/4">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs shrink-0
-                      ${
-                        tx.merchant === "Netflix"
-                          ? "bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500"
-                          : tx.merchant === "PlayStation"
-                            ? "bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-500"
-                            : tx.merchant === "Airbnb"
-                              ? "bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-500"
-                              : tx.merchant === "Apple"
-                                ? "bg-gray-100 dark:bg-gray-500/10 text-gray-600 dark:text-gray-300"
-                                : "bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500"
-                      }`}
-                    >
-                      ★
-                    </div>
-                    <span className="font-medium text-sm text-gray-900 dark:text-gray-200 truncate">
-                      {tx.merchant}
-                    </span>
-                  </div>
-                  <div className="w-1/4 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span
-                      className={`w-6 h-4 rounded space-x-0.5 flex items-center justify-center overflow-hidden bg-gray-200 dark:bg-white shrink-0`}
-                    >
-                      <span className="w-1/2 h-full bg-red-500 block"></span>
-                      <span className="w-1/2 h-full bg-orange-400 block -ml-1 rounded-l-full"></span>
-                    </span>
-                    <span className="truncate">{tx.card}</span>
-                  </div>
-                  <div className="w-1/4 text-sm text-gray-500 dark:text-gray-400 text-left truncate px-2">
-                    {tx.date}
-                  </div>
+              {transactions.map((tx) => {
+                const isRecipient = isUserRecipient(tx);
+                const otherAccount = isRecipient
+                  ? tx.fromAccount
+                  : tx.toAccount;
+                const otherAccountLabel =
+                  otherAccount?.accountNumber ||
+                  otherAccount?._id ||
+                  otherAccount ||
+                  "Unknown";
+
+                return (
                   <div
-                    className={`w-1/4 text-right font-medium text-sm ${tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-200"}`}
+                    key={tx._id}
+                    className="flex items-center justify-between group mb-4"
                   >
-                    {tx.type === "income" ? "+" : ""}
-                    {tx.amount.toFixed(2)}
+                    <div className="flex items-center gap-4 w-1/4">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs shrink-0
+                        ${
+                          isRecipient
+                            ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500"
+                            : "bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500"
+                        }`}
+                      >
+                        {isRecipient ? "↙" : "↗"}
+                      </div>
+                      <span className="font-medium text-sm text-gray-900 dark:text-gray-200 truncate">
+                        {isRecipient ? "Credit" : "Debit"}
+                      </span>
+                    </div>
+                    <div className="w-1/4 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="truncate">
+                        Acc: {String(otherAccountLabel).slice(-6)}
+                      </span>
+                    </div>
+                    <div className="w-1/4 text-sm text-gray-500 dark:text-gray-400 text-left truncate px-2">
+                      {new Date(tx.createdAt).toLocaleDateString()}
+                    </div>
+                    <div
+                      className={`w-1/4 text-right font-medium text-sm ${isRecipient ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-200"}`}
+                    >
+                      {isRecipient ? "+" : "-"}
+                      {tx.amount.toLocaleString("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))} */}
+                );
+              })}
             </div>
           </div>
         </div>
 
-        <div className="md:col-span-2 lg:col-span-4 bg-white dark:bg-[#0c0f1a] rounded-3xl border border-gray-200 dark:border-white/5 p-6 relative shadow-sm dark:shadow-none">
+        <div className="md:col-span-2 lg:col-span-4 bg-white dark:bg-[#151828] rounded-3xl border border-gray-200 dark:border-[#232738] p-6 relative shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Spending
@@ -276,10 +338,13 @@ const Dashboard = ({ onMenuClick }) => {
 
           <div className="flex items-end gap-3 mb-8">
             <span className="text-3xl font-bold text-gray-900 dark:text-white">
-              {"No Spending"}
+              {totalSpending.toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
             </span>
             <span className="text-red-600 dark:text-red-400 font-medium flex items-center bg-red-100 dark:bg-red-400/10 px-2 py-0.5 rounded text-xs mb-1">
-              ↓{"0%"}
+              ↓ 0%
               <span className="text-gray-500 dark:text-gray-400 ml-1">
                 From last month
               </span>
@@ -287,24 +352,26 @@ const Dashboard = ({ onMenuClick }) => {
           </div>
 
           <div className="flex items-end justify-between mt-12 h-32 px-2 pb-4 border-b border-gray-200 dark:border-white/5">
-            {/* {dashboardData?.spending?.categories?.map((cat, i) => (
+            {/* Spending categories placeholder bar chart */}
+            {[
+              { name: "Rent", value: 40 },
+              { name: "Food", value: 70 },
+              { name: "Shop", value: 30 },
+              { name: "Ent", value: 55 },
+            ].map((cat, i) => (
               <div
                 key={i}
                 className="flex flex-col items-center gap-2 flex-1 group"
               >
                 <div
                   className="w-full max-w-10 rounded-t-lg bg-linear-to-t from-gray-200 dark:from-[#1e2235] to-blue-400 dark:to-blue-500/80 relative group-hover:to-blue-500 dark:group-hover:to-blue-400 transition-colors"
-                  style={{ height: `${cat.value * 3}px` }}
-                >
-                  <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-gray-700 dark:text-white">
-                    {cat.value.toFixed(2)}
-                  </span>
-                </div>
+                  style={{ height: `${cat.value * 1.5}px` }}
+                ></div>
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   {cat.name}
                 </span>
               </div>
-            ))} */}
+            ))}
           </div>
         </div>
       </div>
