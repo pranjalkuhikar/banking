@@ -10,6 +10,10 @@ const _config = {
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
   UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
   RABBITMQ_URL: process.env.RABBITMQ_URL,
+  CLIENT_ID: process.env.CLIENT_ID,
+  CLIENT_SECRET: process.env.CLIENT_SECRET,
+  REFRESH_TOKEN: process.env.REFRESH_TOKEN,
+  EMAIL_USER: process.env.EMAIL_USER,
 };
 
 const config = Object.freeze(_config);
