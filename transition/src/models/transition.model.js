@@ -22,7 +22,7 @@ const transitionSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        value: ["pending", "completed", "failed"],
+        values: ["pending", "completed", "failed"],
         message: "{VALUE} is not a valid status",
       },
       default: "pending",

@@ -23,7 +23,7 @@ const ledgerSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: {
-      value: ["credit", "debit"],
+      values: ["credit", "debit"],
       message: "{VALUE} is not a valid type",
     },
     required: true,

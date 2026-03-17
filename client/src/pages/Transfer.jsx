@@ -8,10 +8,15 @@ import {
   ArrowLeft,
   Menu,
   Clock,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+import { useGetAccountQuery } from "../services/account.api";
+import { useCreateTransitionMutation } from "../services/transition.api";
 
 const Transfer = ({ onMenuClick }) => {
   const [step, setStep] = useState(1);
+  const [errorMsg, setErrorMsg] = useState("");
   const [formData, setFormData] = useState({
     recipientName: "",
     accountNumber: "",
@@ -19,6 +24,44 @@ const Transfer = ({ onMenuClick }) => {
     amount: "",
     note: "",
   });
+
+  const { data: accountData, isLoading: isAccountLoading } =
+    useGetAccountQuery();
+  const [
+    createTransition,
+    { isLoading: isTransitioning, data: transitionResponse },
+  ] = useCreateTransitionMutation();
+
+  const handleNext = () => setStep(step + 1);
+  const handleBack = () => {
+    setErrorMsg("");
+    setStep(step - 1);
+  };
+
+  const handleConfirmTransfer = async () => {
+    setErrorMsg("");
+    if (!accountData?.account?._id) {
+      setErrorMsg("Your account details are not loaded. Please refresh.");
+      return;
+    }
+
+    try {
+      const result = await createTransition({
+        fromAccount: accountData.account._id,
+        toAccount: formData.accountNumber,
+        amount: Number(formData.amount),
+        idempotencyKey: crypto.randomUUID(),
+      }).unwrap();
+
+      if (result) {
+        setStep(3);
+      }
+    } catch (err) {
+      setErrorMsg(
+        err?.data?.message || "Something went wrong. Please try again.",
+      );
+    }
+  };
 
   const recentPayees = [
     {
@@ -47,9 +90,6 @@ const Transfer = ({ onMenuClick }) => {
     },
   ];
 
-  const handleNext = () => setStep(step + 1);
-  const handleBack = () => setStep(step - 1);
-
   const renderStepIcon = (stepNum) => {
     if (step > stepNum)
       return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
@@ -62,6 +102,16 @@ const Transfer = ({ onMenuClick }) => {
       </div>
     );
   };
+
+  if (isAccountLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-[#0c0f1a]">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
+
+  const account = accountData?.account;
 
   return (
     <div className="flex-1 flex overflow-hidden bg-gray-50 dark:bg-[#0c0f1a]">
@@ -172,10 +222,13 @@ const Transfer = ({ onMenuClick }) => {
                     </div>
                     <div>
                       <p className="font-bold text-gray-900 dark:text-white">
-                        Quantum Platinum Card
+                        {account?.accountType === "saving"
+                          ? "Savings"
+                          : "Current"}{" "}
+                        Account
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Main Account • **** 4521
+                        Main Account • **** {account?.accountNumber?.slice(-4)}
                       </p>
                     </div>
                   </div>
@@ -184,7 +237,7 @@ const Transfer = ({ onMenuClick }) => {
                       Available Balance
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      $14,890.50
+                      {account?.currency} {account?.balance?.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -214,7 +267,7 @@ const Transfer = ({ onMenuClick }) => {
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 block mb-1.5 px-1">
-                        IBAN / Account Number
+                        Recipient Account Number (ID)
                       </label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -222,7 +275,7 @@ const Transfer = ({ onMenuClick }) => {
                         </span>
                         <input
                           type="text"
-                          placeholder="GB 29 NWBK 6018..."
+                          placeholder="Paste Account ID here..."
                           className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
                           value={formData.accountNumber}
                           onChange={(e) =>
@@ -247,10 +300,10 @@ const Transfer = ({ onMenuClick }) => {
                     </label>
                     <div className="relative">
                       <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400">
-                        $
+                        {account?.currency === "INR" ? "₹" : "$"}
                       </span>
                       <input
-                        type="text"
+                        type="number"
                         placeholder="0.00"
                         className="w-full bg-gray-50 dark:bg-white/5 border-2 border-transparent focus:border-blue-500/50 rounded-2xl pl-12 pr-6 py-5 text-4xl font-bold text-gray-900 dark:text-white transition-all placeholder:text-gray-200 dark:placeholder:text-white/5"
                         value={formData.amount}
@@ -308,12 +361,20 @@ const Transfer = ({ onMenuClick }) => {
                   </p>
                 </div>
                 <div className="p-8 space-y-6">
+                  {errorMsg && (
+                    <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center gap-3 text-sm">
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      {errorMsg}
+                    </div>
+                  )}
+
                   <div className="flex flex-col items-center mb-8">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-1">
                       Sending
                     </p>
                     <h2 className="text-5xl font-black text-blue-600 dark:text-blue-400">
-                      ${formData.amount}
+                      {account?.currency === "INR" ? "₹" : "$"}
+                      {formData.amount}
                     </h2>
                   </div>
 
@@ -321,17 +382,16 @@ const Transfer = ({ onMenuClick }) => {
                     <div className="flex justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-transparent">
                       <span className="text-sm text-gray-500">Recipient</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        {formData.recipientName}
+                        {formData.recipientName || "Unknown"}
                       </span>
                     </div>
                     <div className="flex justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-transparent">
-                      <span className="text-sm text-gray-500">Bank / IBAN</span>
+                      <span className="text-sm text-gray-500">
+                        Recipient Account ID
+                      </span>
                       <div className="text-right">
                         <p className="text-sm font-bold text-gray-900 dark:text-white">
                           {formData.accountNumber}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {formData.bankName}
                         </p>
                       </div>
                     </div>
@@ -346,17 +406,28 @@ const Transfer = ({ onMenuClick }) => {
                   <div className="flex gap-4 pt-6">
                     <button
                       onClick={handleBack}
+                      disabled={isTransitioning}
                       className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all font-bold"
                     >
                       <ArrowLeft className="w-5 h-5" />
                       Edit
                     </button>
                     <button
-                      onClick={handleNext}
-                      className="flex-[2] flex items-center justify-center gap-2 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-xl shadow-emerald-500/20 transition-all transform hover:translate-y-[-2px]"
+                      onClick={handleConfirmTransfer}
+                      disabled={isTransitioning}
+                      className="flex-[2] flex items-center justify-center gap-2 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-70 text-white font-bold shadow-xl shadow-emerald-500/20 transition-all transform hover:translate-y-[-2px]"
                     >
-                      Confirm & Send
-                      <CheckCircle2 className="w-5 h-5" />
+                      {isTransitioning ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          Confirm & Send
+                          <CheckCircle2 className="w-5 h-5" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -382,7 +453,8 @@ const Transfer = ({ onMenuClick }) => {
               <p className="text-gray-500 dark:text-gray-400 mb-8 px-6">
                 Your payment of{" "}
                 <span className="font-bold text-emerald-600">
-                  ${formData.amount}
+                  {account?.currency === "INR" ? "₹" : "$"}
+                  {formData.amount}
                 </span>{" "}
                 to {formData.recipientName} has been processed successfully.
               </p>
@@ -392,8 +464,8 @@ const Transfer = ({ onMenuClick }) => {
                   <span className="text-xs text-gray-400 uppercase tracking-widest">
                     Transaction ID
                   </span>
-                  <span className="text-xs font-mono text-gray-900 dark:text-white">
-                    TXN-8829-1029-4822
+                  <span className="text-xs font-mono text-gray-900 dark:text-white truncate max-w-[200px]">
+                    {transitionResponse?.transition?._id || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -416,6 +488,7 @@ const Transfer = ({ onMenuClick }) => {
                       bankName: "",
                       amount: "",
                       note: "",
+                      fromAccountId: account?._id || "",
                     });
                   }}
                   className="w-full py-4 rounded-2xl bg-blue-600 text-white font-bold shadow-xl shadow-blue-500/20 hover:bg-blue-500 transition-all"
