@@ -5,6 +5,7 @@ import Dashboard from "./components/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Transfer from "./pages/Transfer";
+import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
           <Route path="/transfer" element={<ProtectedLayout><Transfer /></ProtectedLayout>} />
           <Route path="/accounts" element={<ProtectedLayout><Accounts /></ProtectedLayout>} />
+          <Route path="/history" element={<ProtectedLayout><History /></ProtectedLayout>} />
           <Route path="/profile" element={<ProtectedLayout><ProfilePage /></ProtectedLayout>} />
         </Route>
 

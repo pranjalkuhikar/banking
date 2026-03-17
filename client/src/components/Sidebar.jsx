@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   CreditCard,
   ArrowRightLeft,
+  History,
   FileText,
   Moon,
   Sun,
@@ -42,6 +43,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     { icon: CreditCard, label: "Accounts", path: "/accounts" },
     { icon: ArrowRightLeft, label: "Transfer", path: "/transfer" },
+    { icon: History, label: "History", path: "/history" },
     { icon: FileText, label: "Profile", path: "/profile" },
   ];
 
