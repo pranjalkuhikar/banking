@@ -1,4 +1,5 @@
 import Account from "../models/account.model.js";
+import { publishToQueue } from "../broker/rabbit.js";
 import generateAccountNumber from "../utils/generateNumber.js";
 
 export const createAccount = async (req, res) => {
@@ -19,6 +20,7 @@ export const createAccount = async (req, res) => {
       currency: "INR",
       status: "active",
     });
+    await publishToQueue("account.created", account);
     return res.status(201).json({ message: "Account Created", account });
   } catch (error) {
     return res.status(500).json({
