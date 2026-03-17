@@ -8,17 +8,17 @@ export const authMiddleware = async (req, res, next) => {
   const token = cookieToken || headerToken;
   if (!token) return res.status(401).json({ message: "No token provided" });
 
-  try {
-    const isBlacklisted = await redis.get(`blacklist:${token}`);
-    if (isBlacklisted) {
-      return res.status(403).json({ message: "Token is blacklisted" });
-    }
-  } catch (error) {
-    console.error("Redis Error in authMiddleware:", error);
-    return res
-      .status(500)
-      .json({ message: "Internal server error during authentication check" });
-  }
+  // try {
+  //   const isBlacklisted = await redis.get(`blacklist:${token}`);
+  //   if (isBlacklisted) {
+  //     return res.status(403).json({ message: "Token is blacklisted" });
+  //   }
+  // } catch (error) {
+  //   console.error("Redis Error in authMiddleware:", error);
+  //   return res
+  //     .status(500)
+  //     .json({ message: "Internal server error during authentication check" });
+  // }
 
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET);

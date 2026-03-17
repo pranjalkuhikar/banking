@@ -26,7 +26,22 @@ export const createTransition = async (req, res) => {
       });
     }
 
-    const toAccountObj = await Account.findById(toAccount);
+    let searchToId = toAccount;
+    // If toAccount is not a valid ObjectId, try finding by accountNumber
+    if (!mongoose.Types.ObjectId.isValid(toAccount)) {
+      const account = await Account.findOne({
+        accountNumber: String(toAccount),
+      });
+      if (!account) {
+        return res.status(404).json({
+          message:
+            "Recipient account not found with the provided account number",
+        });
+      }
+      searchToId = account._id;
+    }
+
+    const toAccountObj = await Account.findById(searchToId);
     if (!toAccountObj) {
       return res.status(400).json({
         message: "Invalid account ID. Recipient does not exist.",
@@ -81,7 +96,7 @@ export const createTransition = async (req, res) => {
         [
           {
             fromAccount,
-            toAccount,
+            toAccount: searchToId,
             amount,
             idempotencyKey,
             status: "pending",
@@ -111,7 +126,7 @@ export const createTransition = async (req, res) => {
     const creditLedgerEntry = await Ledger.create(
       [
         {
-          accountId: toAccount,
+          accountId: searchToId,
           amount: amount,
           transitionId: transition._id,
           type: "credit",
@@ -159,12 +174,26 @@ export const getTransitions = async (req, res) => {
     const { accountId } = req.params;
     if (!accountId) {
       return res.status(400).json({
-        message: "Account ID is required",
+        message: "Account ID or Number is required",
       });
     }
 
+    let searchId = accountId;
+    // If accountId is not a valid ObjectId, try finding by accountNumber
+    if (!mongoose.Types.ObjectId.isValid(accountId)) {
+      const account = await Account.findOne({
+        accountNumber: String(accountId),
+      });
+      if (!account) {
+        return res.status(404).json({
+          message: "Account not found with the provided account number",
+        });
+      }
+      searchId = account._id;
+    }
+
     const transitions = await Transition.find({
-      $or: [{ fromAccount: accountId }, { toAccount: accountId }],
+      $or: [{ fromAccount: searchId }, { toAccount: searchId }],
     })
       .sort({ createdAt: -1 })
       .limit(10)
@@ -196,12 +225,15 @@ export const generateInitialFunds = async (req, res) => {
     }
 
     if (!toUserAccount) {
-      toUserAccount = await Account.findOne({ accountNumber: String(toAccount) });
+      toUserAccount = await Account.findOne({
+        accountNumber: String(toAccount),
+      });
     }
 
     if (!toUserAccount) {
       return res.status(400).json({
-        message: "Target account does not exist. Please check the account ID or number.",
+        message:
+          "Target account does not exist. Please check the account ID or number.",
       });
     }
 

@@ -92,9 +92,9 @@ export const logout = async (req, res) => {
       return res.status(401).json({ message: "No token provided" });
     }
 
-    await redis.set(`blacklist:${token}`, "true", {
-      ex: Math.max(parseExpToSec(config.JWT_EXPIRE), 1),
-    });
+    // await redis.set(`blacklist:${token}`, "true", {
+    //   ex: Math.max(parseExpToSec(config.JWT_EXPIRE), 1),
+    // });
     res.clearCookie("token", {
       httpOnly: true,
       secure: config.NODE_ENV === "production",

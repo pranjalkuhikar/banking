@@ -306,13 +306,13 @@ const Transfer = ({ onMenuClick }) => {
                     </div>
                     <div className="group">
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block px-1 group-focus-within:text-blue-500 transition-colors">
-                        Account ID / Number
+                        Account Number
                       </label>
                       <div className="relative">
                         <Building2 className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                         <input
                           type="text"
-                          placeholder="Paste account ID"
+                          placeholder="Enter account number"
                           className="w-full bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm font-bold font-mono focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-gray-300 dark:placeholder:text-gray-600"
                           value={formData.accountNumber}
                           onChange={(e) =>
@@ -444,7 +444,7 @@ const Transfer = ({ onMenuClick }) => {
                       </div>
                       <div className="p-6 rounded-3xl bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-transparent flex justify-between items-center transition-all hover:bg-white dark:hover:bg-white/10">
                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                          Target ID
+                          Account Number
                         </span>
                         <span className="text-base font-black text-gray-900 dark:text-white font-mono">
                           {formData.accountNumber}

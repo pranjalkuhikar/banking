@@ -181,14 +181,11 @@ const Accounts = ({ onMenuClick }) => {
                       </h4>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <div className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[7px] sm:text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2 sm:mb-3">
-                      Priority Elite
+                    <div className="flex flex-col items-end">
+                      <div className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[7px] sm:text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2 sm:mb-3">
+                        Priority Elite
+                      </div>
                     </div>
-                    <span className="text-[8px] sm:text-[10px] font-mono text-white/20 tracking-tighter uppercase whitespace-nowrap">
-                      ID: {account._id?.slice(-8).toUpperCase()}
-                    </span>
-                  </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 md:gap-12">
