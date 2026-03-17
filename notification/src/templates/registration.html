@@ -1,28 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { padding: 20px; }
-        .footer { text-align: center; font-size: 12px; color: #777; margin-top: 20px; }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px 8px 0 0;
+      }
+      .content {
+        padding: 20px;
+      }
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+        margin-top: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Welcome to Our Bank!</h1>
-        </div>
-        <div class="content">
-            <p>Hello {{firstName}} {{lastName}},</p>
-            <p>Thank you for registering with us. We are excited to have you on board!</p>
-            <p>Your account has been successfully created.</p>
-            <p>Best regards,<br>The Banking Team</p>
-        </div>
-        <div class="footer">
-            &copy; 2026 Banking Microservices. All rights reserved.
-        </div>
+      <div class="header">
+        <img src="favicon.svg" alt="Logo" />
+        <h1>Welcome to Our Bank!</h1>
+      </div>
+      <div class="content">
+        <p>Hello {{firstName}} {{lastName}},</p>
+        <p>
+          Thank you for registering with us. We are excited to have you on
+          board!
+        </p>
+        <p>Your account has been successfully created.</p>
+        <p>Best regards,<br />The Banking Team</p>
+      </div>
+      <div class="footer">&copy; 2026 NeuroBank. All rights reserved.</div>
     </div>
-</body>
+  </body>
 </html>

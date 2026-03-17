@@ -1,35 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-        .header { background: #e53e3e; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { padding: 20px; }
-        .transaction-details { background: #f7fafc; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .footer { text-align: center; font-size: 12px; color: #777; margin-top: 20px; }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .header {
+        background: #e53e3e;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px 8px 0 0;
+      }
+      .content {
+        padding: 20px;
+      }
+      .transaction-details {
+        background: #f7fafc;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+      }
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+        margin-top: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Transaction Alert</h1>
+      <div class="header">
+        <img src="favicon.svg" alt="Logo" />
+        <h1>Transaction Alert</h1>
+      </div>
+      <div class="content">
+        <p>Hello,</p>
+        <p>Your account has been debited for a transaction.</p>
+        <div class="transaction-details">
+          <p><strong>Amount:</strong> {{amount}}</p>
+          <p><strong>To Account:</strong> {{toAccount}}</p>
+          <p><strong>Date & Time:</strong> {{dateTime}}</p>
+          <p><strong>Transaction ID:</strong> {{transitionId}}</p>
         </div>
-        <div class="content">
-            <p>Hello,</p>
-            <p>Your account has been debited for a transaction.</p>
-            <div class="transaction-details">
-                <p><strong>Amount:</strong> {{amount}}</p>
-                <p><strong>To Account:</strong> {{toAccount}}</p>
-                <p><strong>Date & Time:</strong> {{dateTime}}</p>
-                <p><strong>Transaction ID:</strong> {{transitionId}}</p>
-            </div>
-            <p>If you did not authorize this transaction, please contact us immediately.</p>
-            <p>Best regards,<br>The Banking Team</p>
-        </div>
-        <div class="footer">
-            &copy; 2026 Banking Microservices. All rights reserved.
-        </div>
+        <p>
+          If you did not authorize this transaction, please contact us
+          immediately.
+        </p>
+        <p>Best regards,<br />The Banking Team</p>
+      </div>
+      <div class="footer">&copy; 2026 NeuroBank. All rights reserved.</div>
     </div>
-</body>
+  </body>
 </html>
