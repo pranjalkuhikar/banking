@@ -4,12 +4,12 @@ import Account from "../models/account.model.js";
 export const startAccountConsumer = async () => {
   try {
     await subscribeToQueue("account.created", async (data) => {
-      const { _id, owner, ownerEmail, accountNumber, status } = data;
+      const { _id, owner, ownerEmail, ownerName, accountNumber, status } = data;
 
       try {
         await Account.findOneAndUpdate(
           { _id },
-          { owner, ownerEmail, accountNumber, status },
+          { owner, ownerEmail, ownerName, accountNumber, status },
           { upsert: true, new: true },
         );
         console.log(`Account ${_id} synced successfully`);

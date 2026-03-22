@@ -1,7 +1,7 @@
 import { subscribeToQueue } from "./rabbit.js";
 import sendEmail from "../utils/email.js";
 
-function startListening() {
+export const initNotificationConsumer = () => {
   // ✅ USER CREATED
   subscribeToQueue("user_created", async (data) => {
     const { email, firstName, lastName } = data;
@@ -121,6 +121,6 @@ function startListening() {
 
     await sendEmail(email, "Amount Debited", "", template);
   });
-}
+};
 
-export default startListening;
+export default initNotificationConsumer;

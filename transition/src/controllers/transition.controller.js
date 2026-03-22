@@ -3,6 +3,7 @@ import Account from "../models/account.model.js";
 import Ledger from "../models/ledger.model.js";
 import mongoose from "mongoose";
 import { publishToQueue } from "../broker/rabbit.js";
+import publishNotificationEvents from "../broker/consumer.js";
 
 export const createTransition = async (req, res) => {
   try {
@@ -145,19 +146,23 @@ export const createTransition = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    // Fetch emails for notification
-    const [sender, receiver] = await Promise.all([
-      mongoose.model("User").findById(fromAccountObj.owner),
-      mongoose.model("User").findById(toAccountObj.owner),
-    ]);
-
     await publishToQueue("transition.completed", {
-      fromAccount: fromAccount,
-      toAccount: toAccount,
-      amount: amount,
+      fromAccount: fromAccountObj._id,
+      toAccount: toAccountObj._id,
+      amount,
       transitionId: transition._id,
-      senderEmail: sender?.email,
-      receiverEmail: receiver?.email,
+    });
+
+    await publishNotificationEvents({
+      transition,
+      amount,
+      fromAccountObj,
+      toAccountObj,
+      senderFallback: {
+        email: req.user?.email,
+        firstName: req.user?.fullName?.firstName,
+        lastName: req.user?.fullName?.lastName,
+      },
     });
 
     return res.status(201).json({
@@ -302,18 +307,23 @@ export const generateInitialFunds = async (req, res) => {
       await session.commitTransaction();
       session.endSession();
 
-      const [sender, receiver] = await Promise.all([
-        mongoose.model("User").findById(fromUserAccount.owner),
-        mongoose.model("User").findById(toUserAccount.owner),
-      ]);
-
       await publishToQueue("transition.completed", {
         fromAccount: fromUserAccount._id,
         toAccount: toUserAccount._id,
-        amount: amount,
+        amount,
         transitionId: transition._id,
-        senderEmail: sender?.email,
-        receiverEmail: receiver?.email,
+      });
+
+      await publishNotificationEvents({
+        transition,
+        amount,
+        fromAccountObj: fromUserAccount,
+        toAccountObj: toUserAccount,
+        senderFallback: {
+          email: req.user?.email,
+          firstName: req.user?.fullName?.firstName,
+          lastName: req.user?.fullName?.lastName,
+        },
       });
 
       return res.status(201).json({

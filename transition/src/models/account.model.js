@@ -10,6 +10,20 @@ const accountSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
+    ownerEmail: {
+      type: String,
+      trim: true,
+    },
+    ownerName: {
+      firstName: {
+        type: String,
+        trim: true,
+      },
+      lastName: {
+        type: String,
+        trim: true,
+      },
+    },
     accountNumber: {
       type: String,
       required: true,

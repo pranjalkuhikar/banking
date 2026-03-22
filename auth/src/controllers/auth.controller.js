@@ -29,9 +29,10 @@ export const register = async (req, res) => {
       systemUser: false,
     });
 
-    publishToQueue("user.register", {
+    publishToQueue("user_created", {
       email: user.email,
-      fullName: user.fullName,
+      firstName: user.fullName.firstName,
+      lastName: user.fullName.lastName,
     });
 
     return res.status(201).json({

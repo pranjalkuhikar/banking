@@ -23,6 +23,7 @@ export const createAccount = async (req, res) => {
     await publishToQueue("account.created", {
       ...account.toObject(),
       ownerEmail: req.user.email,
+      ownerName: req.user.fullName,
     });
     return res.status(201).json({ message: "Account Created", account });
   } catch (error) {
